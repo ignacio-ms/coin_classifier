@@ -5,9 +5,10 @@ import tensorflow as tf
 
 class MyDataset:
 
-    def __init__(self):
+    def __init__(self, DS_TYPE='train'):
         self.IMG_SIZE = (150, 150)
         self.IMG_LABELS = ['1c', '1e', '2c', '2e', '5c', '10c', '20c', '50c']
+        self.DS_TYPE = DS_TYPE
 
     def read_data(self, datset_path='data/train/', resize_img=False, verbose=False, GPU=False):
         # Reading image paths and creating labels
