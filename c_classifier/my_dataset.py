@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 
 class MyDataset:
@@ -41,9 +42,17 @@ class MyDataset:
             self.data = data
             
         if verbose:
-            print('--------Images--------')
+            # General
+            print('--------Data Readed--------')
             print(f'Total valid image paths: {len(img_paths)}')
             print(f'{len(np.unique(labels))} diferent classes: {np.unique(labels)}')
+            
+            # Number of images per class
+            no_classes = {c: len(labels == c) for c in np.unique(labels)}
+            plt.bar(no_classes.keys(), no_classes.values())
+            plt.title("Number of images by class")
+            plt.xlabel('Class Name')
+            plt.ylabel('# Images')
             
     def read_img(img_path, label):
         img = tf.io.read_file(img_path, label)
