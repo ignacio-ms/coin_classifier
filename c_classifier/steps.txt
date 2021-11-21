@@ -2,15 +2,6 @@ Coin classifier:
 
 1.EDA
 
-    train_dir = 'DATA/train' # image folder
-
-    # get the list of jpegs from sub image class folders
-    normal_imgs = [fn for fn in os.listdir(f'{train_dir}/NORMAL') if fn.endswith('.jpeg')]
-    pneumo_imgs = [fn for fn in os.listdir(f'{train_dir}/PNEUMONIA') if fn.endswith('.jpeg')]
-
-    files = [f for f in glob.glob(path + '*/*.jpg', recursive=True)]
-    img = cv2.imread('data/train/10c/t')
-
     https://stackoverflow.com/questions/56130320/how-to-load-image-files-dataset-to-tensorflow-jupyter-notebook
 
     -train/test distribution
