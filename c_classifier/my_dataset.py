@@ -5,10 +5,12 @@ import tensorflow as tf
 
 class MyDataset:
 
-    def __init__(self, DS_TYPE='train'):
+    def __init__(self):
         self.IMG_SIZE = (150, 150)
         self.IMG_LABELS = ['1c', '1e', '2c', '2e', '5c', '10c', '20c', '50c']
-        self.DS_TYPE = DS_TYPE
+
+        self.images = None
+        self.labels = None
 
     def read_data(self, datset_path='data/train/', resize_img=False, verbose=False, GPU=False):
         # Reading image paths and creating labels
@@ -39,8 +41,6 @@ class MyDataset:
         with tf.device(device_name):
             img_paths = tf.convert_to_tensor(img_paths, dtype=tf.string)
             labels = tf.convert_to_tensor(labels, dtype=tf.string)
-
-            img, label = tf.data.from_tensor_slices()
 
 
 dataset = MyDataset()
