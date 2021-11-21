@@ -9,10 +9,9 @@ class MyDataset:
         self.IMG_SIZE = (150, 150)
         self.IMG_LABELS = ['1c', '1e', '2c', '2e', '5c', '10c', '20c', '50c']
 
-        self.images = None
-        self.labels = None
+        self.data = None
 
-    def read_data(self, datset_path='data/train/', resize_img=False, verbose=False, GPU=False):
+    def read_data(self, datset_path, verbose=False, GPU=False):
         # Reading image paths and creating labels
         img_paths, labels = list(), list()
 
@@ -23,11 +22,6 @@ class MyDataset:
                 if img.endswith('.jpg'):
                     img_paths.append(os.path.join(f_dir, img))
                     labels.append(file)
-
-        if verbose:
-            print('--------Image Paths--------')
-            print(f'Total valid image paths: {len(img_paths)}')
-            print(f'{len(np.unique(labels))} diferent classes: {np.unique(labels)}')
 
         device_name = '/cpu:0'
         # Cheking aviable GPU if requested
@@ -41,7 +35,23 @@ class MyDataset:
         with tf.device(device_name):
             img_paths = tf.convert_to_tensor(img_paths, dtype=tf.string)
             labels = tf.convert_to_tensor(labels, dtype=tf.string)
+            
+            data = tf.data.Dataset.from_tensor_slices((img_paths, labels))
+            data = data.map(read_img)
+            self.data = data
+            
+        if verbose:
+            print('--------Images--------')
+            print(f'Total valid image paths: {len(img_paths)}')
+            print(f'{len(np.unique(labels))} diferent classes: {np.unique(labels)}')
+            
+        return data
+            
+    def read_img(img_path, label):
+        img = tf.io.read_file(img_path, label)
+        img = tf.image.decode_image(img, dtype=tf.float32)
+        return img, label
 
 
 dataset = MyDataset()
-dataset.read_data(verbose=True, GPU=True)
+dataset.read_data(datset_path='data/train/', verbose=True, GPU=True)
