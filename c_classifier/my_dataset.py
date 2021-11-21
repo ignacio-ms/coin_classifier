@@ -45,8 +45,6 @@ class MyDataset:
             print(f'Total valid image paths: {len(img_paths)}')
             print(f'{len(np.unique(labels))} diferent classes: {np.unique(labels)}')
             
-        return data
-            
     def read_img(img_path, label):
         img = tf.io.read_file(img_path, label)
         img = tf.image.decode_image(img, dtype=tf.float32)
