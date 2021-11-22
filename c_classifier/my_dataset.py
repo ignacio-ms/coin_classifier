@@ -1,5 +1,6 @@
 import os
 
+import cv2
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -77,7 +78,7 @@ class MyDataset:
         :return: Loaded image and it's class
         """
         img = tf.io.read_file(img_path)
-        img = tf.image.decode_image(img, dtype=tf.float32)
+        img = tf.image.decode_jpeg(img)
         return img, label
 
     def print_img_by_index(self, index):
@@ -86,9 +87,13 @@ class MyDataset:
         :param index: Index of the image to show
         :return:
         """
-        plt.title(self.labels[index].numpy())
-        _ = plt.imshow(self.data[index])
-        plt.show()
+        label = self.labels[index].numpy().decode('UTF-8')
+        img = self.data[index].numpy()
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+        cv2.imshow(label, img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     def validation_split(self, keep_size=0.8, verbose=False):
         """
