@@ -4,12 +4,6 @@ Coin classifier:
 
     https://stackoverflow.com/questions/56130320/how-to-load-image-files-dataset-to-tensorflow-jupyter-notebook
 
-    -train/test distribution
-    -No. Classes
-    -No. ex/class
-        -plot
-    -Img dims
-    ...
     -DATA ANALISIS:
 
         https://towardsdatascience.com/exploratory-data-analysis-ideas-for-image-classification-d3fc6bbfb2d2

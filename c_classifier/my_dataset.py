@@ -56,7 +56,7 @@ class MyDataset:
             
         if verbose:
             # General
-            print('--------Data Readed--------')
+            print('----------Data Readed----------')
             print(f'Total valid image paths: {len(img_paths)}')
             print(f'{len(np.unique(labels))} diferent classes: {np.unique(labels)}')
 
@@ -90,7 +90,48 @@ class MyDataset:
         _ = plt.imshow(self.data[index])
         plt.show()
 
+    def validation_split(self, keep_size=0.8, verbose=False):
+        """
+        Creates a validation dataset from the actual dataset
+        :param keep_size: Percentage of data to keep in the dataset
+        :param verbose: Boolean to show extra info of the split
+        :return: A new MyDataset containing the splitted data
+        """
+        if len(self.data) == 0:
+            raise ValueError("Can't split empty dataset\n")
 
-train = MyDataset()
-train.read_data(datset_path='data/train/', verbose=False, shuffle=True)
-train.print_img_by_index(0)
+        # No. elements to keep
+        no_keep_size = int(len(self.data) * keep_size)
+
+        val = MyDataset()
+        val.data = self.data[no_keep_size:]
+        val.labels = self.labels[no_keep_size:]
+
+        self.data = self.data[:no_keep_size]
+        self.labels = self.labels[:no_keep_size]
+
+        if verbose:
+            print('--------Validation split--------')
+            print(f'Splitted data from size {len(self.data) + len(val.data)} to sizes')
+            print(f'\t{len(self.data)} of keeping data.')
+            print(f'\t{len(val.data)} of validation data.')
+
+            # New distribution
+            no_classes = {c: np.sum(np.where(np.array(self.labels) == c, 1, 0)) for c in np.unique(self.labels)}
+            plt.subplot(2, 1, 1)
+            plt.bar(no_classes.keys(), no_classes.values())
+            plt.title("Number of images by class in first split")
+            plt.xlabel('Class Name')
+            plt.ylabel('# Images')
+
+            no_classes = {c: np.sum(np.where(np.array(val.labels) == c, 1, 0)) for c in np.unique(val.labels)}
+            plt.subplot(2, 1, 2)
+            plt.bar(no_classes.keys(), no_classes.values())
+            plt.title("Number of images by class in secons split")
+            plt.xlabel('Class Name')
+            plt.ylabel('# Images')
+
+            plt.tight_layout()
+            plt.show()
+
+        return val
