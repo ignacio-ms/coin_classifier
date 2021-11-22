@@ -86,9 +86,6 @@ class MyDataset:
         :param index: Index of the image to show
         :return:
         """
-        if index >= len(self.labels):
-            raise IndexError("Invalid image index")
-
         plt.title(self.labels[index].numpy())
         _ = plt.imshow(self.data[index])
         plt.show()
@@ -96,4 +93,4 @@ class MyDataset:
 
 train = MyDataset()
 train.read_data(datset_path='data/train/', verbose=False, shuffle=True)
-train.print_img_by_index(2000)
+train.print_img_by_index(0)
