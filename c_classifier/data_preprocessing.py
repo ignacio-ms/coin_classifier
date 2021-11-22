@@ -14,13 +14,6 @@ def check_max_min(arr):
 
 @timed
 def adaptative(img, Smax=9):
-    """
-    Aplly an adaptative filter to a given image. The filter eliminates extreme pixel intensities
-    increasing the kernel shape by each iteration.
-    :param img: Image to apply kernel
-    :param Smax: Maximun shape of the increasing kernel (Smax x Smax)
-    :return: Filtered image
-    """
     img = img.numpy()
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 

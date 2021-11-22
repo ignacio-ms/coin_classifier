@@ -9,4 +9,4 @@ import tensorflow as tf
 train = MyDataset()
 train.read_data(datset_path='data/train/', verbose=False, shuffle=True)
 
-train.data[0].assign(eda.adaptative(train.data[0]))
+train.data[0] = eda.adaptative(train.data[0])

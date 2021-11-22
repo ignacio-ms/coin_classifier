@@ -19,15 +19,6 @@ class MyDataset:
 
     @timed
     def read_data(self, datset_path, verbose=False, shuffle=False):
-        """
-        Read images from a given forlder of subfolders (Corresponding with the image classes). The function saves
-        the images and their respective class into the data and labels attributes of the class. Both are saved as
-        tensorflow tensors.
-        :param datset_path: Path of the file containing the data subfolders
-        :param verbose: Boolean to show extra info of the dataset
-        :param shuffle: Boolean to shuffle the dataset
-        :return:
-        """
         # Reading image paths and creating labels
         img_paths, labels = list(), list()
 
@@ -70,23 +61,18 @@ class MyDataset:
             plt.show()
 
     @staticmethod
-    def read_img(img_path, label):
-        """
-        Load an image from disk as a tensor
-        :param img_path: Paht of the image to read
-        :param label: Class of the image
-        :return: Loaded image and it's class
-        """
-        img = tf.io.read_file(img_path)
-        img = tf.image.decode_jpeg(img)
+    def parse_opencv(img_path):
+        img_path = img_path.decode('utf-8')
+        img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img = img / 255.0
+        img = img.astype(np.float32)
+        return img
+
+    def read_img(self, img_path, label):
+        img = tf.numpy_function(self.parse_opencv, [img_path], [tf.float32])
         return img, label
 
     def print_img_by_index(self, index):
-        """
-        Print an image of the dataset corresponging to a given index
-        :param index: Index of the image to show
-        :return:
-        """
         label = self.labels[index].numpy().decode('UTF-8')
         img = self.data[index].numpy()
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -96,12 +82,6 @@ class MyDataset:
         cv2.destroyAllWindows()
 
     def validation_split(self, keep_size=0.8, verbose=False):
-        """
-        Creates a validation dataset from the actual dataset
-        :param keep_size: Percentage of data to keep in the dataset
-        :param verbose: Boolean to show extra info of the split
-        :return: A new MyDataset containing the splitted data
-        """
         if len(self.data) == 0:
             raise ValueError("Can't split empty dataset\n")
 
