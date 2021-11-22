@@ -13,7 +13,7 @@ def check_max_min(arr):
 
 
 @timed
-def adaptative(img, Smax):
+def adaptative(img, Smax=9):
     """
     Aplly an adaptative filter to a given image. The filter eliminates extreme pixel intensities
     increasing the kernel shape by each iteration.
@@ -42,5 +42,4 @@ def adaptative(img, Smax):
 
     f_img = cv2.cvtColor(f_img, cv2.COLOR_BGR2RGB)
     f_img = tf.convert_to_tensor(f_img, dtype=tf.uint8)
-    print(f_img)
     return f_img
