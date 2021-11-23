@@ -17,6 +17,7 @@ class MyDataset:
 
         self.IMG_SIZE = (150, 150)
         self.IMG_LABELS = ['1c', '1e', '2c', '2e', '5c', '10c', '20c', '50c']
+        self.label_dict = {'1c': 0, '1e': 1, '2c': 2, '2e': 3, '5c': 4, '10c': 5, '20c': 6, '50c': 7}
 
         self.data = []
         self.labels = []
@@ -36,6 +37,7 @@ class MyDataset:
                     labels.append(file)
 
         self.data_paths = np.array(img_paths)
+        labels = [self.label_dict[v] for v in labels]
 
         # Reading data as EigerTensors (Used for training)
         if self.ds_type == 'tf':
@@ -79,6 +81,7 @@ class MyDataset:
 
     def map_img(self, img_path, label):
         img = tf.numpy_function(self.read_img_tf, [img_path], [tf.float32])
+        label = tf.one_hot(label, 8, dtype=tf.int32)
         return img, label
 
     @timed
