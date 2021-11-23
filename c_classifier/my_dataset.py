@@ -1,24 +1,29 @@
 import os
+from pathlib import Path
 
 import cv2
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 
 from helpers import timed
 
 
 class MyDataset:
 
-    def __init__(self):
+    def __init__(self, ds_type='np'):
+        if ds_type not in ['np', 'tf']:
+            raise TypeError('Dataset type must be "np" or "tf".')
+        self.ds_type = ds_type
+
         self.IMG_SIZE = (150, 150)
         self.IMG_LABELS = ['1c', '1e', '2c', '2e', '5c', '10c', '20c', '50c']
 
         self.data = []
         self.labels = []
+        self.data_paths = []
 
     @timed
-    def read_data(self, datset_path, verbose=False, shuffle=False):
+    def read_data(self, datset_path):
         # Reading image paths and creating labels
         img_paths, labels = list(), list()
 
@@ -30,58 +35,85 @@ class MyDataset:
                     img_paths.append(os.path.join(f_dir, img))
                     labels.append(file)
 
-        # Reading images from disk
-        ds = tf.data.Dataset.from_tensor_slices((img_paths, labels))
-        ds = ds.map(self.read_img)
+        self.data_paths = np.array(img_paths)
 
-        # Saving data
-        for X, y in ds:
-            self.data.append(X)
-            self.labels.append(y)
+        # Reading data as EigerTensors (Used for training)
+        if self.ds_type == 'tf':
+            # Reading images from disk
+            ds = tf.data.Dataset.from_tensor_slices((img_paths, labels))
+            ds = ds.map(self.map_img)
 
-        if shuffle:
+            # Saving data
+            for X, y in ds:
+                self.data.append(X[0])
+                self.labels.append(y)
+
+            # Shuffle data
             index = tf.range(start=0, limit=tf.shape(self.data)[0], dtype=tf.int32)
             s_index = tf.random.shuffle(index)
 
             self.data = tf.gather(self.data, s_index)
             self.labels = tf.gather(self.labels, s_index)
-            
-        if verbose:
-            # General
-            print('----------Data Readed----------')
-            print(f'Total valid image paths: {len(img_paths)}')
-            print(f'{len(np.unique(labels))} diferent classes: {np.unique(labels)}')
 
-            # Number of images per class
-            no_classes = {c: np.sum(np.where(np.array(labels) == c, 1, 0)) for c in np.unique(labels)}
-            plt.bar(no_classes.keys(), no_classes.values())
-            plt.title("Number of images by class")
-            plt.xlabel('Class Name')
-            plt.ylabel('# Images')
-            plt.show()
+        # Reading data as Numpy arrays (Used for preprocessing)
+        elif self.ds_type == 'np':
+            # Saving and Reading images from disk
+            self.data = np.array([self.read_img_np(path) for path in img_paths])
+            self.labels = np.array(labels)
 
     @staticmethod
-    def parse_opencv(img_path):
+    def read_img_tf(img_path):
         img_path = img_path.decode('utf-8')
         img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = img / 255.0
         img = img.astype(np.float32)
         return img
 
-    def read_img(self, img_path, label):
-        img = tf.numpy_function(self.parse_opencv, [img_path], [tf.float32])
+    @staticmethod
+    def read_img_np(img_path):
+        img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img = img.astype(np.uint8)
+        img = np.array(img)
+        return img
+
+    def map_img(self, img_path, label):
+        img = tf.numpy_function(self.read_img_tf, [img_path], [tf.float32])
         return img, label
 
+    @timed
+    def save_data(self, new_father_path=None):
+        if self.ds_type != 'np':
+            raise TypeError('Only np type dataset can be saved in disk')
+
+        if new_father_path is not None:
+            if isinstance(new_father_path, str):
+                changing_path = Path(self.data_paths[0]).parts[0]
+
+                old_path = self.data_paths
+                relative_path = [os.path.relpath(op, changing_path) for op in old_path]
+                self.data_paths = [os.path.join(new_father_path, rp) for rp in relative_path]
+                print(self.data_paths[:10])
+            else:
+                raise NameError('The new parent path must be a string')
+
+        for i in range(len(self.data)):
+            cv2.imwrite(self.data_paths[i], self.data[i])
+
     def print_img_by_index(self, index):
-        label = self.labels[index].numpy().decode('UTF-8')
-        img = self.data[index].numpy()
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        if len(self.data) == 0:
+            raise ValueError("Can't print empty dataset\n")
+
+        label = self.labels[index].numpy().decode('UTF-8') if self.ds_type == 'tf' else self.labels[index]
+        img = self.data[index].numpy() if self.ds_type == 'tf' else self.data[index]
+        if self.ds_type == 'tf':
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         cv2.imshow(label, img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    def validation_split(self, keep_size=0.8, verbose=False):
+    def validation_split(self, keep_size=0.8):
         if len(self.data) == 0:
             raise ValueError("Can't split empty dataset\n")
 
@@ -94,29 +126,5 @@ class MyDataset:
 
         self.data = self.data[:no_keep_size]
         self.labels = self.labels[:no_keep_size]
-
-        if verbose:
-            print('--------Validation split--------')
-            print(f'Splitted data from size {len(self.data) + len(val.data)} to sizes')
-            print(f'\t{len(self.data)} of keeping data.')
-            print(f'\t{len(val.data)} of validation data.')
-
-            # New distribution
-            no_classes = {c: np.sum(np.where(np.array(self.labels) == c, 1, 0)) for c in np.unique(self.labels)}
-            plt.subplot(2, 1, 1)
-            plt.bar(no_classes.keys(), no_classes.values())
-            plt.title("Number of images by class in first split")
-            plt.xlabel('Class Name')
-            plt.ylabel('# Images')
-
-            no_classes = {c: np.sum(np.where(np.array(val.labels) == c, 1, 0)) for c in np.unique(val.labels)}
-            plt.subplot(2, 1, 2)
-            plt.bar(no_classes.keys(), no_classes.values())
-            plt.title("Number of images by class in secons split")
-            plt.xlabel('Class Name')
-            plt.ylabel('# Images')
-
-            plt.tight_layout()
-            plt.show()
 
         return val

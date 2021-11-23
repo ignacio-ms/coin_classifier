@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import tensorflow as tf
 
 from helpers import timed
 
@@ -14,9 +13,6 @@ def check_max_min(arr):
 
 @timed
 def adaptative(img, Smax=9):
-    img = img.numpy()
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-
     ap_max = Smax // 2
     a_imagen = cv2.copyMakeBorder(img, ap_max, ap_max, ap_max, ap_max, cv2.BORDER_REPLICATE)
     f_img = img.copy()
@@ -33,6 +29,4 @@ def adaptative(img, Smax=9):
 
             f_img[i, j, :] = e
 
-    f_img = cv2.cvtColor(f_img, cv2.COLOR_BGR2RGB)
-    f_img = tf.convert_to_tensor(f_img, dtype=tf.uint8)
     return f_img
