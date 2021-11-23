@@ -4,15 +4,18 @@ import numpy as np
 from helpers import timed
 
 
-def check_max_min(arr):
-    if (0 <= arr[0] <= 25 or 0 <= arr[1] <= 25 or 0 <= arr[2] <= 25)\
-            or (230 <= arr[0] <= 255 or 230 <= arr[1] <= 255 or 230 <= arr[2] <= 255):
-        return True
-    return False
-
-
 @timed
-def adaptative(img, Smax=9):
+def noise_reduction(data, Smax=9, threshold=30):
+    if len(data.shape) == 3:
+        return adaptative(data, Smax, threshold)
+
+    for i in range(len(data)):
+        data[i] = adaptative(data[i], Smax, threshold)
+
+    return data
+
+
+def adaptative(img, Smax, t):
     ap_max = Smax // 2
     a_imagen = cv2.copyMakeBorder(img, ap_max, ap_max, ap_max, ap_max, cv2.BORDER_REPLICATE)
     f_img = img.copy()
@@ -23,10 +26,16 @@ def adaptative(img, Smax=9):
             ap_aux = 1
             e = img[i, j, :]
 
-            while ap_aux <= ap_max and len(e) != 0 and (check_max_min(e)):
+            while ap_aux <= ap_max and len(e) != 0 and (check_max_min(e, t)):
                 e = np.median(a_imagen[i - ap_aux:i + ap_aux + 1, j - 1:j + ap_aux + 1, :], axis=(0, 1))
                 ap_aux += 1
-
             f_img[i, j, :] = e
 
     return f_img
+
+
+def check_max_min(arr, t):
+    if (0 <= arr[0] <= t and 0 <= arr[1] <= t and 0 <= arr[2] <= t)\
+            or ((255 - t) <= arr[0] <= 255 and (255 - t) <= arr[1] <= 255 and (255 - t) <= arr[2] <= 255):
+        return True
+    return False

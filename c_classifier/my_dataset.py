@@ -82,25 +82,14 @@ class MyDataset:
         return img, label
 
     @timed
-    def save_data(self, new_father_path=None):
+    def save_data(self):
         if self.ds_type != 'np':
             raise TypeError('Only np type dataset can be saved in disk')
-
-        if new_father_path is not None:
-            if isinstance(new_father_path, str):
-                changing_path = Path(self.data_paths[0]).parts[0]
-
-                old_path = self.data_paths
-                relative_path = [os.path.relpath(op, changing_path) for op in old_path]
-                self.data_paths = [os.path.join(new_father_path, rp) for rp in relative_path]
-                print(self.data_paths[:10])
-            else:
-                raise NameError('The new parent path must be a string')
 
         for i in range(len(self.data)):
             cv2.imwrite(self.data_paths[i], self.data[i])
 
-    def print_img_by_index(self, index):
+    def print_img_by_index(self, index, pause=True):
         if len(self.data) == 0:
             raise ValueError("Can't print empty dataset\n")
 
@@ -110,8 +99,9 @@ class MyDataset:
             img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         cv2.imshow(label, img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        if pause:
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
     def validation_split(self, keep_size=0.8):
         if len(self.data) == 0:
