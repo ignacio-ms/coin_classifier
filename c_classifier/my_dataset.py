@@ -15,9 +15,8 @@ class MyDataset:
             raise TypeError('Dataset type must be "np" or "tf".')
         self.ds_type = ds_type
 
-        self.IMG_SIZE = (150, 150)
         self.IMG_LABELS = ['1c', '1e', '2c', '2e', '5c', '10c', '20c', '50c']
-        self.label_dict = {'1c': 0, '1e': 1, '2c': 2, '2e': 3, '5c': 4, '10c': 5, '20c': 6, '50c': 7}
+        self.LABEL_DICT = {'1c': 0, '1e': 1, '2c': 2, '2e': 3, '5c': 4, '10c': 5, '20c': 6, '50c': 7}
 
         self.data = []
         self.labels = []
@@ -37,7 +36,7 @@ class MyDataset:
                     labels.append(file)
 
         self.data_paths = np.array(img_paths)
-        labels = [self.label_dict[v] for v in labels]
+        labels = [self.LABEL_DICT[v] for v in labels]
 
         # Reading data as EigerTensors (Used for training)
         if self.ds_type == 'tf':
@@ -92,19 +91,18 @@ class MyDataset:
         for i in range(len(self.data)):
             cv2.imwrite(self.data_paths[i], self.data[i])
 
-    def print_img_by_index(self, index, pause=True):
+    def print_img_by_index(self, index):
         if len(self.data) == 0:
             raise ValueError("Can't print empty dataset\n")
 
-        label = self.labels[index].numpy().decode('UTF-8') if self.ds_type == 'tf' else self.labels[index]
+        label = self.labels[index].numpy() if self.ds_type == 'tf' else self.labels[index]
         img = self.data[index].numpy() if self.ds_type == 'tf' else self.data[index]
         if self.ds_type == 'tf':
             img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         cv2.imshow(label, img)
-        if pause:
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     def validation_split(self, keep_size=0.8):
         if len(self.data) == 0:
