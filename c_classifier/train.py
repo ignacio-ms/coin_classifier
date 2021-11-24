@@ -67,7 +67,3 @@ plt.plot(epochs_range, val_loss, label='Validation Loss')
 plt.legend(loc='upper right')
 plt.title('Training and Validation Loss')
 plt.show()
-
-pred = model.predict_proba(train.data[:2])
-print(pred)
-train.print_img_by_index(0)
