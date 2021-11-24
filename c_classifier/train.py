@@ -1,4 +1,4 @@
-from my_dataset import MyDataset
+from my_dataset import MyTfDataset
 
 import time
 
@@ -8,7 +8,7 @@ from tensorflow.keras.models import Sequential
 
 import matplotlib.pyplot as plt
 
-train = MyDataset(ds_type='tf')
+train = MyTfDataset()
 train.read_data(datset_path='data/train/')
 val = train.validation_split()
 

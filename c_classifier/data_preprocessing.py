@@ -2,10 +2,11 @@ import cv2
 import numpy as np
 
 from helpers import timed
+from numba import jit, cuda
 
 
 @timed
-def noise_reduction(data, Smax=9, threshold=30):
+def noise_reduction(data, Smax=5, threshold=55):
     if len(data.shape) == 3:
         return adaptative(data, Smax, threshold)
 
@@ -15,6 +16,7 @@ def noise_reduction(data, Smax=9, threshold=30):
     return data
 
 
+@jit(forceobj=True)
 def adaptative(img, Smax, t):
     ap_max = Smax // 2
     a_imagen = cv2.copyMakeBorder(img, ap_max, ap_max, ap_max, ap_max, cv2.BORDER_REPLICATE)
@@ -34,6 +36,7 @@ def adaptative(img, Smax, t):
     return f_img
 
 
+@jit
 def check_max_min(arr, t):
     if (0 <= arr[0] <= t and 0 <= arr[1] <= t and 0 <= arr[2] <= t)\
             or ((255 - t) <= arr[0] <= 255 and (255 - t) <= arr[1] <= 255 and (255 - t) <= arr[2] <= 255):
