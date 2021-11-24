@@ -12,9 +12,10 @@ train = MyTfDataset()
 train.read_data(datset_path='data/train/')
 val = train.validation_split()
 
+
 # Create Model
 model = Sequential([
-    layers.Conv2D(16, 3, padding='same', activation='relu'),
+    layers.Conv2D(16, 3, padding='same', activation='relu', input_shape=(150, 150, 3)),
     layers.MaxPooling2D(),
     layers.Conv2D(32, 3, padding='same', activation='relu'),
     layers.MaxPooling2D(),
@@ -27,7 +28,7 @@ model = Sequential([
 
 # Compile Model
 model.compile(
-    optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
     loss=tf.keras.losses.CategoricalCrossentropy(),
     metrics=['accuracy']
 )
@@ -37,8 +38,8 @@ epochs = 10
 strat_time = time.time()
 history = model.fit(
     train.data,
-    train.labels,
-    validation_data=(val.data, val.labels),
+    train.labels_oh,
+    validation_data=(val.data, val.labels_oh),
     epochs=epochs
 )
 print(f'Model took {time.time() - strat_time}[s] to train.')
@@ -66,3 +67,7 @@ plt.plot(epochs_range, val_loss, label='Validation Loss')
 plt.legend(loc='upper right')
 plt.title('Training and Validation Loss')
 plt.show()
+
+pred = model.predict_proba(train.data[:2])
+print(pred)
+train.print_img_by_index(0)

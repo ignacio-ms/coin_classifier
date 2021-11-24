@@ -66,6 +66,7 @@ class MyTfDataset:
 
         self.data = []
         self.labels = []
+        self.labels_oh = []
 
     @timed
     def read_data(self, datset_path):
@@ -81,6 +82,7 @@ class MyTfDataset:
                     labels.append(file)
 
         labels = [self.LABEL_DICT[v] for v in labels]
+        self.labels = labels
 
         # Reading images from disk
         ds = tf.data.Dataset.from_tensor_slices((img_paths, labels))
@@ -89,13 +91,14 @@ class MyTfDataset:
         # Saving data
         for X, y in ds:
             self.data.append(X[0])
-            self.labels.append(y)
+            self.labels_oh.append(y)
 
         # Shuffle data
         index = tf.range(start=0, limit=tf.shape(self.data)[0], dtype=tf.int32)
         s_index = tf.random.shuffle(index)
 
         self.data = tf.gather(self.data, s_index)
+        self.labels_oh = tf.gather(self.labels_oh, s_index)
         self.labels = tf.gather(self.labels, s_index)
 
     @staticmethod
@@ -116,10 +119,11 @@ class MyTfDataset:
         if len(self.data) == 0:
             raise ValueError("Can't print empty dataset\n")
 
+        label = np.array(list(self.LABEL_DICT.keys()))[self.labels[index]]
         img = self.data[index].numpy()
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-        cv2.imshow(self.labels[index].numpy(), img)
+        cv2.imshow(label, img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -133,8 +137,10 @@ class MyTfDataset:
         val = MyTfDataset()
         val.data = self.data[no_keep_size:]
         val.labels = self.labels[no_keep_size:]
+        val.labels_oh = self.labels_oh[no_keep_size:]
 
         self.data = self.data[:no_keep_size]
         self.labels = self.labels[:no_keep_size]
+        self.labels_oh = self.labels_oh[:no_keep_size]
 
         return val
