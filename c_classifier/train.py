@@ -8,33 +8,46 @@ from tensorflow.keras.models import Sequential
 
 import matplotlib.pyplot as plt
 
+tf.random.set_seed(12345)
+
 train = MyTfDataset()
-train.read_data(datset_path='data/train/')
+train.read_data(datset_path='data/train/', augmentation=False)
 val = train.validation_split()
 
+print(f'Train {train}')
+print(f'Validation {val}')
+
+data_augmentation = Sequential(
+    [
+        layers.experimental.preprocessing.RandomFlip(mode="horizontal_and_vertical"),
+        layers.experimental.preprocessing.RandomZoom(0.2),
+        layers.experimental.preprocessing.RandomContrast(factor=0.1)
+    ]
+)
 
 # Create Model
+# LeNet-5 CNN Architecture
 model = Sequential([
-    layers.Conv2D(16, 3, padding='same', activation='relu', input_shape=(150, 150, 3)),
-    layers.MaxPooling2D(),
-    layers.Conv2D(32, 3, padding='same', activation='relu'),
-    layers.MaxPooling2D(),
-    layers.Conv2D(64, 3, padding='same', activation='relu'),
-    layers.MaxPooling2D(),
+    data_augmentation,
+    layers.Conv2D(6, 5, padding='same', activation='relu', input_shape=(150, 150, 3)),
+    layers.AveragePooling2D(),
+    layers.Conv2D(16, 5, padding='same', activation='relu'),
+    layers.AveragePooling2D(),
     layers.Flatten(),
-    layers.Dense(128, activation='relu'),
-    layers.Dense(8)  # No.Classes
+    layers.Dense(120, activation='relu'),
+    layers.Dense(84, activation='relu'),
+    layers.Dense(8, activation='softmax')  # No.Classes
 ])
 
 # Compile Model
 model.compile(
-    optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
     loss=tf.keras.losses.CategoricalCrossentropy(),
     metrics=['accuracy']
 )
 
 # Train Model
-epochs = 10
+epochs = 100
 strat_time = time.time()
 history = model.fit(
     train.data,

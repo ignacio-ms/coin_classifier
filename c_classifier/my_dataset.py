@@ -78,7 +78,7 @@ class MyTfDataset:
         self.labels_oh = []
 
     @timed
-    def read_data(self, datset_path):
+    def read_data(self, datset_path, augmentation=False):
         # Reading image paths and creating labels
         img_paths, labels = list(), list()
 
@@ -96,6 +96,9 @@ class MyTfDataset:
         # Reading images from disk
         ds = tf.data.Dataset.from_tensor_slices((img_paths, labels))
         ds = ds.map(self.map_img)
+
+        if augmentation:
+            ds = ds.map(self.augment)
 
         # Saving data
         for X, y in ds:
@@ -118,6 +121,14 @@ class MyTfDataset:
         img = img / 255.0
         img = img.astype(np.float32)
         return img
+
+    @staticmethod
+    def augment(img, label):
+        img = tf.image.random_flip_left_right(img)
+        img = tf.image.random_flip_up_down(img)
+        img = tf.image.random_brightness(img, max_delta=0.1)
+        img = tf.image.random_contrast(img, lower=0.1, upper=0.2)
+        return img, label
 
     def map_img(self, img_path, label):
         img = tf.numpy_function(self.read_img, [img_path], [tf.float32])
