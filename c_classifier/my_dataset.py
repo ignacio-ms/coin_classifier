@@ -99,8 +99,6 @@ class MyTfDataset:
 
         aug = keras.preprocessing.image.ImageDataGenerator(
             rotation_range=360,
-            horizontal_flip=True,
-            vertical_flip=True,
             width_shift_range=0.2,
             height_shift_range=0.2
         )
