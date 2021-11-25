@@ -1,6 +1,7 @@
 import os
 
 import cv2
+import keras.preprocessing.image
 import numpy as np
 import tensorflow as tf
 
@@ -91,19 +92,35 @@ class MyTfDataset:
                     labels.append(file)
 
         labels = [self.LABEL_DICT[v] for v in labels]
-        self.labels = labels
 
         # Reading images from disk
         ds = tf.data.Dataset.from_tensor_slices((img_paths, labels))
         ds = ds.map(self.map_img)
 
-        if augmentation:
-            ds = ds.map(self.augment)
+        aug = keras.preprocessing.image.ImageDataGenerator(
+            rotation_range=360,
+            horizontal_flip=True,
+            vertical_flip=True,
+            width_shift_range=0.2,
+            height_shift_range=0.2
+        )
 
         # Saving data
+        index = 0
         for X, y in ds:
             self.data.append(X[0])
             self.labels_oh.append(y)
+            self.labels.append(labels[index])
+
+            if augmentation:
+                aug_iter = aug.flow(X)
+                for i in range(2):
+                    img = next(aug_iter)[0].astype(np.float32)
+                    self.data.append(img)
+                    self.labels_oh.append(y)
+                    self.labels.append(labels[index])
+
+            index += 1
 
         # Shuffle data
         index = tf.range(start=0, limit=tf.shape(self.data)[0], dtype=tf.int32)
@@ -121,14 +138,6 @@ class MyTfDataset:
         img = img / 255.0
         img = img.astype(np.float32)
         return img
-
-    @staticmethod
-    def augment(img, label):
-        img = tf.image.random_flip_left_right(img)
-        img = tf.image.random_flip_up_down(img)
-        img = tf.image.random_brightness(img, max_delta=0.1)
-        img = tf.image.random_contrast(img, lower=0.1, upper=0.2)
-        return img, label
 
     def map_img(self, img_path, label):
         img = tf.numpy_function(self.read_img, [img_path], [tf.float32])

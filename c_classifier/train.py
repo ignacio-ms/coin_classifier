@@ -11,24 +11,24 @@ import matplotlib.pyplot as plt
 tf.random.set_seed(12345)
 
 train = MyTfDataset()
-train.read_data(datset_path='data/train/', augmentation=False)
+train.read_data(datset_path='data/train/', augmentation=True)
 val = train.validation_split()
 
 print(f'Train {train}')
 print(f'Validation {val}')
 
-data_augmentation = Sequential(
-    [
-        layers.experimental.preprocessing.RandomFlip(mode="horizontal_and_vertical"),
-        layers.experimental.preprocessing.RandomZoom(0.2),
-        layers.experimental.preprocessing.RandomContrast(factor=0.1)
-    ]
-)
+# data_augmentation = Sequential(
+#     [
+#         layers.experimental.preprocessing.RandomFlip(mode="horizontal_and_vertical"),
+#         layers.experimental.preprocessing.RandomZoom(0.2),
+#         layers.experimental.preprocessing.RandomContrast(factor=0.1)
+#     ]
+# )
 
 # Create Model
 # LeNet-5 CNN Architecture
 model = Sequential([
-    data_augmentation,
+    # data_augmentation,
     layers.Conv2D(6, 5, padding='same', activation='relu', input_shape=(150, 150, 3)),
     layers.AveragePooling2D(),
     layers.Conv2D(16, 5, padding='same', activation='relu'),
@@ -47,7 +47,7 @@ model.compile(
 )
 
 # Train Model
-epochs = 100
+epochs = 50
 strat_time = time.time()
 history = model.fit(
     train.data,
