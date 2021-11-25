@@ -56,6 +56,15 @@ class MyNpDataset:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+    def __str__(self):
+        print('----------Dataset----------')
+        print(f'No.Examples: {len(self.labels)}')
+        print(f'No.Clases: {len(np.unique(self.labels))}')
+        for c in np.unique(self.labels):
+            print(f'\tClass {c}: {sum(np.where(self.labels == c, 1, 0))}')
+        print(f'Image shapes: {self.data[0].shape}')
+        return 'NpDataset'
+
 
 # Tensorflow Tensors dataset (Used for training)
 class MyTfDataset:
@@ -144,3 +153,12 @@ class MyTfDataset:
         self.labels_oh = self.labels_oh[:no_keep_size]
 
         return val
+
+    def __str__(self):
+        print('----------Dataset----------')
+        print(f'No.Examples: {len(self.labels)}')
+        print(f'No.Clases: {len(np.unique(self.labels))}')
+        for c in np.unique(self.labels):
+            print(f'\tClass {self.IMG_LABELS[c]}: {sum(np.where(self.labels == c, 1, 0))}')
+        print(f'Image shapes: {self.data[0].shape}')
+        return 'TfDataset'
