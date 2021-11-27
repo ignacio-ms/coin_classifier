@@ -5,10 +5,6 @@ import numpy as np
 from helpers import timed
 from numba import jit
 
-
-# Zero Component Analysis (ZCA)
-
-
 # ----- Noise reduction ----- #
 @timed
 def noise_reduction(data, Smax=3, threshold=55, adapt=False):
