@@ -5,6 +5,7 @@ import numpy as np
 from helpers import timed
 from numba import jit
 
+
 # ----- Noise reduction ----- #
 @timed
 def noise_reduction(data, Smax=3, threshold=55, adapt=False):
@@ -79,7 +80,7 @@ def adjust_gamma(image, method='hsv', gamma=1.0):
         hue, sat, val = cv2.split(hsv)
 
         mean = np.mean(val)
-        gamma = (math.log(0.5*255)/math.log(mean)) if mean > 1 else 0
+        gamma = (math.log(0.5 * 255) / math.log(mean)) if mean > 1 else 0
         val_gamma = np.power(val, gamma).clip(0, 255).astype(np.uint8)
 
         hsv_gamma = cv2.merge([hue, sat, val_gamma])

@@ -4,6 +4,9 @@ from genetic import Genetic
 import numpy as np
 import tensorflow as tf
 
+import time
+
+
 tf.random.set_seed(12345)
 
 train = MyTfDataset()
@@ -23,12 +26,14 @@ num_generations = 10
 gen_cnn = Genetic(pop_size, nlayers, max_nfilters, max_sfilters)
 pop = gen_cnn.generate_population()
 
+start = time.time()
 for i in range(num_generations+1):
-    pop_acc = gen_cnn.fitness(pop, train.data, train.labels_oh, val.data, val.labels_oh, epochs)
-    print('Best Accuracy at the generation {}: {}'.format(i, gen_cnn.max_acc))
-    parents = gen_cnn.select_parents(pop, 5, pop_acc.copy())
+    pop_acc, pop_acc_val = gen_cnn.fitness(pop, train.data, train.labels_oh, val.data, val.labels_oh, epochs)
+    print(f'Best Accuracy at the generation {i}: {gen_cnn.max_acc}')
+    parents = gen_cnn.select_parents(pop, 5, pop_acc_val.copy())
     child = gen_cnn.crossover(parents)
     child = gen_cnn.mutation(child)
     pop = np.concatenate((parents, child), axis=0).astype('int')
+print(f'Genetig algorith took {time.time() - start}[s]')
 gen_cnn.smooth_curve(0.8, num_generations)
-print(f'Best architecture {gen_cnn.best_arch}')
+print(f'Best architecture {gen_cnn.best_arch} - {gen_cnn.max_acc}')
