@@ -1,27 +1,34 @@
 from my_dataset import MyTfDataset
-from cnn_architectures import CNN
+from genetic import Genetic
 
-import cv2
 import numpy as np
 import tensorflow as tf
 
 tf.random.set_seed(12345)
 
 train = MyTfDataset()
-train.read_data(datset_path='data/train/', augmentation=False)
+train.read_data(datset_path='data/train/', augmentation=True)
 val = train.validation_split()
 
 print(f'Train {train}')
 print(f'Validation {val}')
 
-# le_net = CNN(architecture='LeNet')
-# le_net.compile()
-# le_net.train(train.data, train.labels_oh, val.data, val.labels_oh, epochs=25, verbose=True)
+pop_size = 10
+nlayers = 3
+max_nfilters = 100
+max_sfilters = 20
+epochs = 20
+num_generations = 10
 
-# le_net = CNN(architecture='Genetic')
-# le_net.compile()
-# le_net.train(train.data, train.labels_oh, val.data, val.labels_oh, epochs=15, verbose=True)
+gen_cnn = Genetic(pop_size, nlayers, max_nfilters, max_sfilters)
+pop = gen_cnn.generate_population()
 
-# le_net = CNN(architecture='GeneticV2')
-# le_net.compile()
-# le_net.train(train.data, train.labels_oh, val.data, val.labels_oh, epochs=15, verbose=True)
+for i in range(num_generations+1):
+    pop_acc = gen_cnn.fitness(pop, train.data, train.labels_oh, val.data, val.labels_oh, epochs)
+    print('Best Accuracy at the generation {}: {}'.format(i, gen_cnn.max_acc))
+    parents = gen_cnn.select_parents(pop, 5, pop_acc.copy())
+    child = gen_cnn.crossover(parents)
+    child = gen_cnn.mutation(child)
+    pop = np.concatenate((parents, child), axis=0).astype('int')
+gen_cnn.smooth_curve(0.8, num_generations)
+print(f'Best architecture {gen_cnn.best_arch}')
