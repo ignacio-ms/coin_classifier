@@ -112,7 +112,7 @@ class MyTfDataset:
 
             if augmentation:
                 aug_iter = aug.flow(X)
-                for i in range(2):
+                for i in range(3):
                     img = next(aug_iter)[0].astype(np.float32)
                     self.data.append(img)
                     self.labels_oh.append(y)
