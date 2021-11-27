@@ -71,7 +71,7 @@ class Genetic:
 
             model = CNN(nfilters, sfilters)
             model.compile()
-            H = model.train(X, Y, X_val, Y_val, batch_size=32, epochs=epochs)
+            H = model.train(X, Y, X_val, Y_val, epochs=epochs)
 
             acc = H.history['accuracy']
             acc_val = H.history['val_accuracy']

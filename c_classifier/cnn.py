@@ -34,13 +34,12 @@ class CNN:
         )
 
     @timed
-    def train(self, X_train, y_train, X_val, y_val, batch_size=32, epochs=20, verbose=False):
+    def train(self, X_train, y_train, X_val, y_val, epochs=20, verbose=False):
         # Train Model
         history = self.model.fit(
             X_train,
             y_train,
             validation_data=(X_val, y_val),
-            batch_size=batch_size,
             epochs=epochs
         )
 
