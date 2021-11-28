@@ -14,9 +14,9 @@ class CNN:
         self.model = Sequential([
             layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), padding='same', activation='relu', input_shape=(150, 150, 3)),
             layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
-            layers.Conv2D(nfilters[1], kernel_size=(sfilters[0], sfilters[0]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[1], kernel_size=(sfilters[1], sfilters[1]), padding='same', activation='relu'),
             layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
-            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[0]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same', activation='relu'),
             layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
             layers.Dropout(0.3),
             layers.Flatten(),
