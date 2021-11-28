@@ -17,10 +17,10 @@ val = train.validation_split()
 print(f'Train {train}')
 print(f'Validation {val}')
 
-pop_size = 10
+pop_size = 20
 nlayers = 3
 max_nfilters = 100
-max_sfilters = 20
+max_sfilters = 10
 epochs = 15
 num_generations = 10
 
@@ -30,11 +30,11 @@ pop = gen_cnn.generate_population()
 start = time.time()
 for i in range(num_generations+1):
     pop_acc, pop_acc_val = gen_cnn.fitness(pop, train.data, train.labels_oh, val.data, val.labels_oh, epochs)
-    print(f'Best Accuracy at the generation {i}: {gen_cnn.max_acc_val}')
-    parents = gen_cnn.select_parents(pop, 5, pop_acc_val.copy())
+    print(f'Best Accuracy(Val) at the generation {i}: {gen_cnn.max_acc_val}')
+    parents = gen_cnn.select_parents(pop, 10, pop_acc_val.copy())
     child = gen_cnn.crossover(parents)
     child = gen_cnn.mutation(child)
     pop = np.concatenate((parents, child), axis=0).astype('int')
 print(f'Genetic algorithm took {time.time() - start}[s]')
-print(f'Best architecture {gen_cnn.best_arch} - Acc: {gen_cnn.max_acc_val}')
+print(f'Best architecture {gen_cnn.best_arch} - Train: {gen_cnn.max_acc_val} Val {gen_cnn.max_acc}')
 gen_cnn.smooth_curve(0.8, num_generations)
