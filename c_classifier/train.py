@@ -20,7 +20,7 @@ pop_size = 10
 nlayers = 3
 max_nfilters = 100
 max_sfilters = 20
-epochs = 20
+epochs = 15
 num_generations = 10
 
 gen_cnn = Genetic(pop_size, nlayers, max_nfilters, max_sfilters)
@@ -35,5 +35,5 @@ for i in range(num_generations+1):
     child = gen_cnn.mutation(child)
     pop = np.concatenate((parents, child), axis=0).astype('int')
 print(f'Genetic algorithm took {time.time() - start}[s]')
+print(f'Best architecture {gen_cnn.best_arch} - Acc: {gen_cnn.max_acc}')
 gen_cnn.smooth_curve(0.8, num_generations)
-print(f'Best architecture {gen_cnn.best_arch} - {gen_cnn.max_acc}')

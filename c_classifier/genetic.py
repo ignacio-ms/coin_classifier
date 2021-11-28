@@ -17,7 +17,6 @@ class Genetic:
         self.gen_acc_val = []
 
     def generate_population(self):
-        np.random.seed(0)
         pop_nlayers = np.random.randint(1, self.max_nfilters, (self.pop_size, self.nlayers))
         pop_sfilters = np.random.randint(1, self.max_sfilters, (self.pop_size, self.nlayers))
         pop_total = np.concatenate((pop_nlayers, pop_sfilters), axis=1)
