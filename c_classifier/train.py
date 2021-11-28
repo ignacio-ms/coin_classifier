@@ -33,7 +33,7 @@ for i in range(num_generations+1):
     print(f'Best Accuracy(Val) at the generation {i}: {gen_cnn.max_acc_val}')
     parents = gen_cnn.select_parents(pop, 10, pop_acc_val.copy())
     child = gen_cnn.crossover(parents)
-    child = gen_cnn.mutation(child)
+    child = gen_cnn.mutation(child, max_nfilters, max_sfilters)
     pop = np.concatenate((parents, child), axis=0).astype('int')
 print(f'Genetic algorithm took {time.time() - start}[s]')
 print(f'Best architecture {gen_cnn.best_arch} - Train: {gen_cnn.max_acc_val} Val {gen_cnn.max_acc}')
