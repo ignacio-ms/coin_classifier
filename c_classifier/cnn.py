@@ -12,14 +12,14 @@ class CNN:
 
     def __init__(self, nfilters, sfilters):
         self.model = Sequential([
-            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), padding='same', activation='relu', input_shape=(150, 150, 3)),
+            layers.Conv2D(nfilters[0], kernel_size=sfilters[0], padding='same', activation='relu', input_shape=(150, 150, 3)),
             layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
-            layers.Conv2D(nfilters[1], kernel_size=(sfilters[1], sfilters[1]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[1], kernel_size=sfilters[1], padding='same', activation='relu'),
             layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
-            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[2], kernel_size=sfilters[2], padding='same', activation='relu'),
             layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
-            layers.Flatten(),
             layers.Dropout(0.3),
+            layers.Flatten(),
             layers.Dense(512, activation='relu'),
             layers.Dense(8, activation='softmax')
         ])
@@ -34,13 +34,14 @@ class CNN:
         )
 
     @timed
-    def train(self, X_train, y_train, X_val, y_val, epochs=20, verbose=False):
+    def train(self, X_train, y_train, X_val, y_val, batch_size=64, epochs=20, verbose=False):
         # Train Model
         history = self.model.fit(
             X_train,
             y_train,
             validation_data=(X_val, y_val),
-            epochs=epochs
+            epochs=epochs,
+            batch_size=batch_size
         )
 
         if verbose:
@@ -73,4 +74,4 @@ class CNN:
 
     def predict(self, X):
         predictions = self.model.predict(X)
-        return np.argmax(predictions, axis=0)
+        return np.argmax(predictions, axis=1)

@@ -8,17 +8,21 @@ class Genetic:
 
     def __init__(self, pop_size, nlayers, max_nfilters, max_sfilters):
         self.pop_size = pop_size
+
         self.nlayers = nlayers
         self.max_nfilters = max_nfilters
         self.max_sfilters = max_sfilters
-        self.max_acc = 0
+
         self.best_arch = np.zeros((1, 6))
+
+        self.max_acc = 0
+        self.max_acc_val = 0
         self.gen_acc = []
         self.gen_acc_val = []
 
     def generate_population(self):
         pop_nlayers = np.random.randint(1, self.max_nfilters, (self.pop_size, self.nlayers))
-        pop_sfilters = np.random.randint(1, self.max_sfilters, (self.pop_size, self.nlayers))
+        pop_sfilters = (np.random.randint(1, self.max_sfilters, (self.pop_size, self.nlayers)) * 2) + 1
         pop_total = np.concatenate((pop_nlayers, pop_sfilters), axis=1)
         return pop_total
 
@@ -70,15 +74,16 @@ class Genetic:
 
             model = CNN(nfilters, sfilters)
             model.compile()
-            H = model.train(X, Y, X_val, Y_val, epochs=epochs)
+            H = model.train(X, Y, X_val, Y_val, batch_size=200, epochs=epochs)
 
             acc = H.history['accuracy']
             acc_val = H.history['val_accuracy']
             pop_acc.append(max(acc) * 100)
             pop_acc_val.append(max(acc_val) * 100)
 
-        if max(pop_acc_val) > self.max_acc:
-            self.max_acc = max(pop_acc_val)
+        if max(pop_acc_val) > self.max_acc_val:
+            self.max_acc = max(pop_acc)
+            self.max_acc_val = max(pop_acc_val)
             self.best_arch = pop[np.argmax(pop_acc_val)]
 
         self.gen_acc.append(max(pop_acc))

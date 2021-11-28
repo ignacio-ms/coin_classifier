@@ -8,6 +8,7 @@ import time
 
 
 tf.random.set_seed(12345)
+np.random.seed(12345)
 
 train = MyTfDataset()
 train.read_data(datset_path='data/train/', augmentation=True)
@@ -29,11 +30,11 @@ pop = gen_cnn.generate_population()
 start = time.time()
 for i in range(num_generations+1):
     pop_acc, pop_acc_val = gen_cnn.fitness(pop, train.data, train.labels_oh, val.data, val.labels_oh, epochs)
-    print(f'Best Accuracy at the generation {i}: {gen_cnn.max_acc}')
+    print(f'Best Accuracy at the generation {i}: {gen_cnn.max_acc_val}')
     parents = gen_cnn.select_parents(pop, 5, pop_acc_val.copy())
     child = gen_cnn.crossover(parents)
     child = gen_cnn.mutation(child)
     pop = np.concatenate((parents, child), axis=0).astype('int')
 print(f'Genetic algorithm took {time.time() - start}[s]')
-print(f'Best architecture {gen_cnn.best_arch} - Acc: {gen_cnn.max_acc}')
+print(f'Best architecture {gen_cnn.best_arch} - Acc: {gen_cnn.max_acc_val}')
 gen_cnn.smooth_curve(0.8, num_generations)
