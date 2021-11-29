@@ -69,7 +69,7 @@ class Genetic:
         pop_acc = []
         pop_acc_val = []
         for i in range(pop.shape[0]):
-            nfilters = pop[i][0:3]
+            nfilters = pop[i][:3]
             sfilters = pop[i][3:]
 
             model = CNN(nfilters, sfilters)

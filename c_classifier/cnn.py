@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,7 +25,7 @@ class CNN:
             layers.Dense(8, activation='softmax')
         ])
 
-    def compile(self, lr=0.0001, metrics=None):
+    def compile(self, lr=1e-4, metrics=None):
         if metrics is None:
             metrics = ['accuracy']
         self.model.compile(
@@ -34,14 +35,26 @@ class CNN:
         )
 
     @timed
-    def train(self, X_train, y_train, X_val, y_val, batch_size=64, epochs=20, verbose=False):
+    def train(self, X_train, y_train, X_val, y_val, batch_size=64, epochs=20, save=False, verbose=False):
+        callbacks = [
+            ReduceLROnPlateau(monitor="val_loss", patience=3, factor=0.1, verbose=1, min_lr=1e-6),
+            EarlyStopping(monitor="val_loss", patience=5, verbose=1)
+        ]
+        if save:
+            callbacks = [
+                ModelCheckpoint(filepath='models/model.h5', verbose=1, save_best_only=True),
+                ReduceLROnPlateau(monitor="val_loss", patience=3, factor=0.1, verbose=1, min_lr=1e-6),
+                EarlyStopping(monitor="val_loss", patience=5, verbose=1)
+            ]
+
         # Train Model
         history = self.model.fit(
             X_train,
             y_train,
             validation_data=(X_val, y_val),
             epochs=epochs,
-            batch_size=batch_size
+            batch_size=batch_size,
+            callbacks=callbacks
         )
 
         if verbose:

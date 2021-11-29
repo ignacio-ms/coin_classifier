@@ -1,5 +1,6 @@
 from my_dataset import MyTfDataset
 from genetic import Genetic
+from cnn import CNN
 
 import numpy as np
 import tensorflow as tf
@@ -21,7 +22,7 @@ pop_size = 20
 nlayers = 3
 max_nfilters = 100
 max_sfilters = 10
-epochs = 15
+epochs = 20
 num_generations = 10
 
 gen_cnn = Genetic(pop_size, nlayers, max_nfilters, max_sfilters)
@@ -38,3 +39,7 @@ for i in range(num_generations+1):
 print(f'Genetic algorithm took {time.time() - start}[s]')
 print(f'Best architecture {gen_cnn.best_arch} - Train: {gen_cnn.max_acc_val} Val {gen_cnn.max_acc}')
 gen_cnn.smooth_curve(0.8, num_generations)
+
+model = CNN(gen_cnn.best_arch[:3], gen_cnn.best_arch[3:])
+model.compile()
+model.train(train.data, train.labels_oh, val.data, val.labels_oh, batch_size=200, epochs=20, save=True, verbose=True)
