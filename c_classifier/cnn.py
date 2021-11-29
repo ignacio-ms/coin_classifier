@@ -35,7 +35,7 @@ class CNN:
         )
 
     @timed
-    def train(self, X_train, y_train, X_val, y_val, batch_size=64, epochs=20, save=False, verbose=False):
+    def train(self, X_train, y_train, X_val, y_val, batch_size=32, epochs=20, save=False, verbose=False):
         callbacks = [
             ReduceLROnPlateau(monitor="val_loss", patience=3, factor=0.1, verbose=1, min_lr=1e-6),
             EarlyStopping(monitor="val_loss", patience=5, verbose=1)
