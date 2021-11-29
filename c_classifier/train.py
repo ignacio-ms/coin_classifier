@@ -37,7 +37,7 @@ for i in range(num_generations+1):
     child = gen_cnn.mutation(child, max_nfilters, max_sfilters)
     pop = np.concatenate((parents, child), axis=0).astype('int')
 print(f'Genetic algorithm took {time.time() - start}[s]')
-print(f'Best architecture {gen_cnn.best_arch} - Train: {gen_cnn.max_acc_val} Val {gen_cnn.max_acc}')
+print(f'Best architecture {gen_cnn.best_arch} - Train: {gen_cnn.max_acc} Val {gen_cnn.max_acc_val}')
 gen_cnn.smooth_curve(0.8, num_generations)
 
 model = CNN(gen_cnn.best_arch[:3], gen_cnn.best_arch[3:])
