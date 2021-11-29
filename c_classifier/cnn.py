@@ -67,23 +67,39 @@ class CNN:
             loss = history.history['loss']
             val_loss = history.history['val_loss']
 
-            epochs_range = range(epochs)
-
             plt.figure(figsize=(8, 8))
             plt.subplot(1, 2, 1)
-            plt.plot(epochs_range, acc, label='Training Accuracy')
-            plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+            plt.plot(acc, label='Training Accuracy')
+            plt.plot(val_acc, label='Validation Accuracy')
             plt.legend(loc='lower right')
             plt.title('Training and Validation Accuracy')
 
             plt.subplot(1, 2, 2)
-            plt.plot(epochs_range, loss, label='Training Loss')
-            plt.plot(epochs_range, val_loss, label='Validation Loss')
+            plt.plot(loss, label='Training Loss')
+            plt.plot(val_loss, label='Validation Loss')
             plt.legend(loc='upper right')
             plt.title('Training and Validation Loss')
             plt.show()
 
         return history
+
+    def predict_per_class(self, X, y, verbose=False):
+        pred = self.model.predict(X)
+        pred = np.argmax(pred, axis=1)
+
+        prob_per_class = []
+        for c in np.unique(y):
+            c_pred = np.sum(np.where(pred[y == c] == y[y == c], 1, 0))
+            prob_per_class.append(c_pred / np.sum(np.where(y == c, 1, 0)))
+
+        if verbose:
+            plt.bar(np.unique(y), prob_per_class)
+            plt.title('Accuracy predictions per class')
+            plt.xlabel('Classes')
+            plt.ylabel('Accuracy')
+            plt.show()
+
+        return prob_per_class
 
     def predict(self, X):
         predictions = self.model.predict(X)

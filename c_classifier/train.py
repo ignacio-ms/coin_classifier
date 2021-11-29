@@ -42,4 +42,6 @@ gen_cnn.smooth_curve(0.8, num_generations)
 
 model = CNN(gen_cnn.best_arch[:3], gen_cnn.best_arch[3:])
 model.compile()
-model.train(train.data, train.labels_oh, val.data, val.labels_oh, batch_size=200, epochs=20, save=True, verbose=True)
+model.train(train.data, train.labels_oh, val.data, val.labels_oh, batch_size=32, epochs=20, save=True, verbose=True)
+
+pred = model.predict_per_class(val.data, val.labels, verbose=True)
