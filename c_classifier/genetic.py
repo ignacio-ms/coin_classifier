@@ -59,7 +59,7 @@ class Genetic:
                 child[i][ind] += val
             val = (np.random.randint(0, 3) * 2)
             ind = np.random.randint(3, 6)
-            if child[i][ind] + val > max_sfilters:
+            if child[i][ind] + val > (max_sfilters * 2) + 1:
                 child[i][ind] -= val
             else:
                 child[i][ind] += val
