@@ -47,11 +47,7 @@ class CNN:
             EarlyStopping(monitor="val_loss", patience=5, verbose=1)
         ]
         if save:
-            callbacks = [
-                ModelCheckpoint(filepath='models/model.h5', verbose=1, save_best_only=True),
-                ReduceLROnPlateau(monitor="val_loss", patience=3, factor=0.1, verbose=1, min_lr=1e-6),
-                EarlyStopping(monitor="val_loss", patience=5, verbose=1)
-            ]
+            callbacks.append(ModelCheckpoint(filepath='models\\model.h5', verbose=1, save_best_only=True))
 
         # Train Model
         history = self.model.fit(
