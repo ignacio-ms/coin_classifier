@@ -21,9 +21,9 @@ print(f'Validation {val}')
 pop_size = 20
 nlayers = 3
 max_nfilters = 100
-max_sfilters = 10
+max_sfilters = 7
 epochs = 20
-num_generations = 10
+num_generations = 50
 
 gen_cnn = Genetic(pop_size, nlayers, max_nfilters, max_sfilters)
 pop = gen_cnn.generate_population()

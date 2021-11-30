@@ -51,7 +51,7 @@ class Genetic:
     @staticmethod
     def mutation(child, max_nfilters, max_sfilters):
         for i in range(child.shape[0]):
-            val = np.random.randint(1, 6)
+            val = np.random.randint(1, 16)
             ind = np.random.randint(0, 3)
             if child[i][ind] + val > max_nfilters:
                 child[i][ind] -= val
@@ -59,7 +59,7 @@ class Genetic:
                 child[i][ind] += val
             val = (np.random.randint(0, 3) * 2)
             ind = np.random.randint(3, 6)
-            if child[i][ind] + val > (max_sfilters * 2):
+            if child[i][ind] + val > max_sfilters:
                 child[i][ind] -= val
             else:
                 child[i][ind] += val
