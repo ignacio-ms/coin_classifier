@@ -47,8 +47,7 @@ class CNN:
             EarlyStopping(monitor="val_loss", patience=5, verbose=1)
         ]
         if save:
-            # callbacks.append(ModelCheckpoint(filepath='models\\model_3.h5', verbose=1, save_best_only=True))
-            callbacks.append(ModelCheckpoint(filepath='D:\\model_1.h5', verbose=1, save_best_only=True))
+            callbacks.append(ModelCheckpoint(filepath='models\\model_3.h5', verbose=1, save_best_only=True))
 
         # Train Model
         history = self.model.fit(
