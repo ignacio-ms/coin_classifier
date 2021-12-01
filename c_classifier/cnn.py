@@ -85,6 +85,9 @@ class CNN:
 
         return history
 
+    def load(self, path):
+        self.model.load_weights(path)
+
     def predict_per_class(self, X, y, verbose=False):
         pred = self.model.predict(X)
         pred = np.argmax(pred, axis=1)
