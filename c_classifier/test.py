@@ -6,7 +6,6 @@ import tensorflow as tf
 
 
 tf.random.set_seed(12345)
-# np.random.seed(12345)
 
 train = MyTfDataset()
 train.read_data(datset_path='data/train/', augmentation=True)
@@ -29,8 +28,8 @@ print(f'Acc per class: {acc_per_class}')
 LABEL_DICT = {0: '1c', 1: '1e', 2: '2c', 3: '2e', 4: '5c', 5: '10c', 6: '20c', 7: '50c'}
 index = np.random.randint(0, 500, size=10)
 for i in index:
+    predict = LABEL_DICT.get(int(np.argmax(model.predict(tf.reshape(val.data[i], (1, 150, 150, 3))))))
     img = cv2.cvtColor(val.data[i].numpy(), cv2.COLOR_RGB2BGR)
-    predic = LABEL_DICT.get(val.labels[np.argmax(model.predict(tf.reshape(val.data[i], (1, 150, 150, 3))))].numpy())
-    cv2.imshow(f'{predic}', img)
+    cv2.imshow(f'{LABEL_DICT.get(val.labels[i].numpy())} - {predict}', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
