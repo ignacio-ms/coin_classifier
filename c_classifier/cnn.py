@@ -13,21 +13,40 @@ class CNN:
 
     def __init__(self, nfilters, sfilters):
         self.model = Sequential([
-            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), activation='relu', input_shape=(150, 150, 3)),
+            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), activation='relu', padding='same', input_shape=(150, 150, 3)),
+            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), padding='same', activation='relu'),
             layers.BatchNormalization(),
-            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
 
             layers.Conv2D(nfilters[1], kernel_size=(sfilters[1], sfilters[1]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[1], kernel_size=(sfilters[1], sfilters[1]), padding='same', activation='relu'),
             layers.BatchNormalization(),
-            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
 
             layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same', activation='relu'),
             layers.BatchNormalization(),
-            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
 
-            layers.Dropout(0.3),
+            layers.Conv2D(nfilters[3], kernel_size=(sfilters[3], sfilters[3]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[3], kernel_size=(sfilters[3], sfilters[3]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[3], kernel_size=(sfilters[3], sfilters[3]), padding='same', activation='relu'),
+            layers.BatchNormalization(),
+            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+
+            layers.Conv2D(nfilters[4], kernel_size=(sfilters[4], sfilters[4]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[4], kernel_size=(sfilters[4], sfilters[4]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[4], kernel_size=(sfilters[4], sfilters[4]), padding='same', activation='relu'),
+            layers.BatchNormalization(),
+            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+
             layers.Flatten(),
-            layers.Dense(512, activation='relu'),
+            layers.Dense(4096, activation='relu'),
+            layers.Dense(4096, activation='relu'),
+            layers.BatchNormalization(),
+            layers.Dense(1024, activation='relu'),
+            layers.Dropout(0.3),
             layers.Dense(8, activation='softmax')
         ])
 
@@ -43,11 +62,11 @@ class CNN:
     @timed
     def train(self, X_train, y_train, X_val, y_val, batch_size=32, epochs=20, save=False, verbose=False):
         callbacks = [
-            ReduceLROnPlateau(monitor="val_loss", patience=3, factor=0.1, verbose=1, min_lr=1e-6),
-            EarlyStopping(monitor="val_loss", patience=5, verbose=1)
+            ReduceLROnPlateau(monitor="val_accuracy", patience=3, factor=0.1, verbose=1, min_lr=1e-6),
+            EarlyStopping(monitor="val_accuracy", patience=5, verbose=1)
         ]
         if save:
-            callbacks.append(ModelCheckpoint(filepath='models\\model_3.h5', verbose=1, save_best_only=True))
+            callbacks.append(ModelCheckpoint(filepath='D:\\model_gen.h5', monitor="val_accuracy", verbose=1, save_best_only=True))
 
         # Train Model
         history = self.model.fit(

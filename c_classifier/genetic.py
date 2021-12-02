@@ -42,23 +42,23 @@ class Genetic:
         for i in range(nchild):
             first = i % nparents
             second = (i + 1) % nparents
-            child[i, :2] = parents[first][:2]
-            child[i, 2] = parents[second][2]
-            child[i, 3:5] = parents[first][3:5]
-            child[i, 5] = parents[second][5]
+            child[i, :3] = parents[first][:3]
+            child[i, 3:] = parents[second][3:]
+            child[i, 5:8] = parents[first][5:8]
+            child[i, 8:] = parents[second][8:]
         return child
 
     @staticmethod
     def mutation(child, max_nfilters, max_sfilters):
         for i in range(child.shape[0]):
-            val = np.random.randint(1, 16)
-            ind = np.random.randint(0, 3)
+            val = np.random.randint(1, 32)
+            ind = np.random.randint(0, 5)
             if child[i][ind] + val > max_nfilters:
                 child[i][ind] -= val
             else:
                 child[i][ind] += val
-            val = (np.random.randint(0, 3) * 2)
-            ind = np.random.randint(3, 6)
+            val = (np.random.randint(0, 4) * 2)
+            ind = np.random.randint(5, 10)
             if child[i][ind] + val > (max_sfilters * 2) + 1:
                 child[i][ind] -= val
             else:
@@ -69,8 +69,8 @@ class Genetic:
         pop_acc = []
         pop_acc_val = []
         for i in range(pop.shape[0]):
-            nfilters = pop[i][:3]
-            sfilters = pop[i][3:]
+            nfilters = pop[i][:5]
+            sfilters = pop[i][5:]
 
             model = CNN(nfilters, sfilters)
             model.compile()

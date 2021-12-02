@@ -24,11 +24,11 @@ for img in walk[2]:
         test.append(img)
 
 test = np.array(test)
-model = tf.keras.models.load_model('models/model_3.h5')
+model = tf.keras.models.load_model('models/VGG16.h5')
 test_pred = np.argmax(model.predict(test), axis=1)
 test_labels = [LABEL_DICT.get(pred) for pred in test_pred]
 
-index = np.random.randint(0, 965, size=10)
+index = np.random.randint(0, 965, size=20)
 for i in index:
     predict = LABEL_DICT.get(test_pred[i])
     img = cv2.cvtColor(test[i], cv2.COLOR_RGB2BGR)
