@@ -40,7 +40,6 @@ label = 0
 colors = [COLOR_DICT.get(i) for i in np.digitize(pred_prob, BINS)]
 for i in circles_rounded[0, :]:
     if low_lim <= i[2] <= up_lim:
-        # cv2.circle(img, (i[0], i[1]), i[2], (0, 255, 0), 2)
         cv2.rectangle(img, (i[0]-i[2]-10, i[1]-i[2]-10), (i[0]+i[2]+10, i[1]+i[2]+10), colors[label], 2)
         cv2.putText(img, f'{LABEL_DICT.get(pred[label])}', (i[0] - i[2] - 10, i[1] - i[2] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.9, colors[label], 2)
         label += 1
