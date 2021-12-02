@@ -1,3 +1,5 @@
+import cv2
+
 from my_dataset import MyTfDataset
 from cnn import CNN
 

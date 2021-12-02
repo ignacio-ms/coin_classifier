@@ -16,8 +16,9 @@ def imagen_media_color(imagen, etiquetas, centros):
 
 
 model = tf.keras.models.load_model('c_classifier/models/model_3.h5')
+LABEL_DICT = {0: '1c', 1: '1e', 2: '2c', 3: '2e', 4: '5c', 5: '10c', 6: '20c', 7: '50c'}
 
-img = cv2.imread('c_detector/data/test_3.jpg', cv2.IMREAD_COLOR)
+img = cv2.imread('c_detector/data/test_5.jpg', cv2.IMREAD_COLOR)
 
 alg = KMeans(n_clusters=2, n_init=10).fit(img.reshape(img.shape[1] * img.shape[0], 3))
 img_med = imagen_media_color(img, alg.labels_, alg.cluster_centers_)
@@ -37,11 +38,12 @@ for i in circles_rounded[0, :]:
     label += 1
 
 label = 0
+print(model.predict(images))
 pred = np.argmax(model.predict(images), axis=1)
 
 for i in circles_rounded[0, :]:
     cv2.rectangle(img, (i[0] - i[2] - 10, i[1] - i[2] - 10), (i[0] + i[2] + 10, i[1] + i[2] + 10), (0, 0, 255), 2)
-    cv2.putText(img, f'{pred[label]}', (i[0] - i[2] - 10, i[1] - i[2] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+    cv2.putText(img, f'{LABEL_DICT.get(pred[label])}', (i[0] - i[2] - 10, i[1] - i[2] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
     label += 1
 
 
