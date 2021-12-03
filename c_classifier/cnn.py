@@ -2,7 +2,6 @@ import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-from tensorflow.keras.regularizers import l2
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,7 +13,7 @@ class CNN:
 
     def __init__(self, nfilters, sfilters):
         self.model = Sequential([
-            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), padding='same', kernel_regularizer=l2(0), input_shape=(150, 150, 3)),
+            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), padding='same', input_shape=(150, 150, 3)),
             layers.BatchNormalization(),
             layers.Activation('relu'),
             layers.MaxPooling2D(pool_size=(2, 2)),
@@ -42,12 +41,12 @@ class CNN:
             layers.MaxPooling2D(pool_size=(2, 2)),
 
             layers.Flatten(),
-            layers.Dense(3072),
+            layers.Dense(1024),
             layers.BatchNormalization(),
             layers.Activation('relu'),
             layers.Dropout(0.5),
 
-            layers.Dense(4096),
+            layers.Dense(2048),
             layers.BatchNormalization(),
             layers.Activation('relu'),
             layers.Dropout(0.5),
@@ -57,7 +56,7 @@ class CNN:
             layers.Activation('softmax'),
         ])
 
-    def compile(self, lr=1e-4, metrics=None):
+    def compile(self, lr=1e-3, metrics=None):
         if metrics is None:
             metrics = ['accuracy']
         self.model.compile(
@@ -69,7 +68,7 @@ class CNN:
     @timed
     def train(self, X_train, y_train, X_val, y_val, batch_size=32, epochs=20, save=False, verbose=False):
         callbacks = [
-            ReduceLROnPlateau(monitor="val_accuracy", patience=3, factor=0.1, verbose=1, min_lr=1e-6),
+            ReduceLROnPlateau(monitor="val_accuracy", patience=2, factor=0.1, verbose=1, min_lr=1e-6),
             EarlyStopping(monitor="val_accuracy", patience=5, verbose=1)
         ]
         if save:
@@ -131,7 +130,3 @@ class CNN:
             plt.show()
 
         return prob_per_class
-
-    def predict(self, X):
-        predictions = self.model.predict(X)
-        return np.argmax(predictions, axis=1)

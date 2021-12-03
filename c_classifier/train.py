@@ -19,6 +19,6 @@ arch = [96, 256, 512, 1024, 1024, 11, 5, 3, 3, 3]
 
 model = CNN(arch[:5], arch[5:])
 model.compile()
-model.train(train.data, train.labels_oh, val.data, val.labels_oh, batch_size=16, epochs=25, save=True, verbose=True)
+model.train(train.data, train.labels_oh, val.data, val.labels_oh, batch_size=8, epochs=25, save=True, verbose=True)
 
 pred = model.predict_per_class(val.data, val.labels, verbose=True)

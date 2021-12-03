@@ -24,7 +24,7 @@ for img in walk[2]:
         test.append(img)
 
 test = np.array(test)
-model = tf.keras.models.load_model('models/model_vgg_2.h5')
+model = tf.keras.models.load_model('models/model_res_net.h5')
 test_pred = np.argmax(model.predict(test), axis=1)
 test_labels = [LABEL_DICT.get(pred) for pred in test_pred]
 
