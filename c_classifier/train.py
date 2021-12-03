@@ -15,9 +15,9 @@ val = train.validation_split()
 print(f'Train {train}')
 print(f'Validation {val}')
 
-arch = [25, 82, 98, 3, 5, 11]  # Acc_train: 100 - Acc_val:89.45
+arch = [96, 256, 512, 1024, 1024, 11, 5, 3, 3, 3]
 
-model = CNN(arch[:3], arch[3:])
+model = CNN(arch[:5], arch[5:])
 model.compile()
 model.train(train.data, train.labels_oh, val.data, val.labels_oh, batch_size=16, epochs=25, save=True, verbose=True)
 

@@ -21,7 +21,11 @@ class Genetic:
         self.gen_acc_val = []
 
     def generate_population(self):
-        pop_nlayers = np.random.randint(1, self.max_nfilters, (self.pop_size, self.nlayers))
+        pop_nlayers = np.ones((self.pop_size, self.nlayers), dtype=np.uint32)
+        n_param = int(self.max_nfilters / self.nlayers)
+        for i in range(self.nlayers):
+            pop_nlayers[:, i] = np.random.randint(i * n_param + 1, (i+1) * n_param, size=self.pop_size)
+
         pop_sfilters = (np.random.randint(1, self.max_sfilters, (self.pop_size, self.nlayers)) * 2) + 1
         pop_total = np.concatenate((pop_nlayers, pop_sfilters), axis=1)
         return pop_total
@@ -57,7 +61,7 @@ class Genetic:
                 child[i][ind] -= val
             else:
                 child[i][ind] += val
-            val = (np.random.randint(0, 4) * 2)
+            val = (np.random.randint(0, 3) * 2)
             ind = np.random.randint(5, 10)
             if child[i][ind] + val > (max_sfilters * 2) + 1:
                 child[i][ind] -= val
@@ -74,7 +78,7 @@ class Genetic:
 
             model = CNN(nfilters, sfilters)
             model.compile()
-            H = model.train(X, Y, X_val, Y_val, batch_size=32, epochs=epochs)
+            H = model.train(X, Y, X_val, Y_val, batch_size=16, epochs=epochs)
 
             acc = H.history['accuracy']
             acc_val = H.history['val_accuracy']

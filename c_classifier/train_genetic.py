@@ -12,7 +12,7 @@ np.random.seed(12345)
 
 train = MyTfDataset()
 train.read_data(datset_path='data/train/', augmentation=True)
-val = train.validation_split()
+val = train.validation_split(keep_size=0.7)
 
 print(f'Train {train}')
 print(f'Validation {val}')
@@ -20,7 +20,7 @@ print(f'Validation {val}')
 pop_size = 15
 nlayers = 5
 max_nfilters = 512
-max_sfilters = 9
+max_sfilters = 7
 epochs = 20
 num_generations = 20
 
@@ -29,6 +29,7 @@ pop = gen_cnn.generate_population()
 
 start = time.time()
 for i in range(num_generations + 1):
+    print(f'Population at generation {i}:\n {pop}')
     pop_acc, pop_acc_val = gen_cnn.fitness(pop, train.data, train.labels_oh, val.data, val.labels_oh, epochs)
     print(f'Best Accuracy(Val) at the generation {i}: {gen_cnn.max_acc_val}')
     parents = gen_cnn.select_parents(pop, 8, pop_acc_val.copy())
@@ -41,6 +42,6 @@ gen_cnn.smooth_curve(0.8, num_generations)
 
 model = CNN(gen_cnn.best_arch[:5], gen_cnn.best_arch[5:])
 model.compile()
-model.train(train.data, train.labels_oh, val.data, val.labels_oh, batch_size=32, epochs=20, save=True, verbose=True)
+model.train(train.data, train.labels_oh, val.data, val.labels_oh, batch_size=16, epochs=20, save=True, verbose=True)
 
 pred = model.predict_per_class(val.data, val.labels, verbose=True)

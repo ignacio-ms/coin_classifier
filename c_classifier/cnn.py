@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+from tensorflow.keras.regularizers import l2
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,41 +14,47 @@ class CNN:
 
     def __init__(self, nfilters, sfilters):
         self.model = Sequential([
-            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), activation='relu', padding='same', input_shape=(150, 150, 3)),
-            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[0], kernel_size=(sfilters[0], sfilters[0]), padding='same', kernel_regularizer=l2(0), input_shape=(150, 150, 3)),
             layers.BatchNormalization(),
-            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+            layers.Activation('relu'),
+            layers.MaxPooling2D(pool_size=(2, 2)),
 
-            layers.Conv2D(nfilters[1], kernel_size=(sfilters[1], sfilters[1]), padding='same', activation='relu'),
-            layers.Conv2D(nfilters[1], kernel_size=(sfilters[1], sfilters[1]), padding='same', activation='relu'),
+            layers.Conv2D(nfilters[1], kernel_size=(sfilters[1], sfilters[1]), padding='same'),
             layers.BatchNormalization(),
-            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+            layers.Activation('relu'),
+            layers.MaxPooling2D(pool_size=(2, 2)),
 
-            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same', activation='relu'),
-            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same', activation='relu'),
-            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same', activation='relu'),
+            layers.ZeroPadding2D((1, 1)),
+            layers.Conv2D(nfilters[2], kernel_size=(sfilters[2], sfilters[2]), padding='same'),
             layers.BatchNormalization(),
-            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+            layers.Activation('relu'),
+            layers.MaxPooling2D(pool_size=(2, 2)),
 
-            layers.Conv2D(nfilters[3], kernel_size=(sfilters[3], sfilters[3]), padding='same', activation='relu'),
-            layers.Conv2D(nfilters[3], kernel_size=(sfilters[3], sfilters[3]), padding='same', activation='relu'),
-            layers.Conv2D(nfilters[3], kernel_size=(sfilters[3], sfilters[3]), padding='same', activation='relu'),
+            layers.ZeroPadding2D((1, 1)),
+            layers.Conv2D(nfilters[3], kernel_size=(sfilters[3], sfilters[3]), padding='same'),
             layers.BatchNormalization(),
-            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+            layers.Activation('relu'),
 
-            layers.Conv2D(nfilters[4], kernel_size=(sfilters[4], sfilters[4]), padding='same', activation='relu'),
-            layers.Conv2D(nfilters[4], kernel_size=(sfilters[4], sfilters[4]), padding='same', activation='relu'),
-            layers.Conv2D(nfilters[4], kernel_size=(sfilters[4], sfilters[4]), padding='same', activation='relu'),
+            layers.ZeroPadding2D((1, 1)),
+            layers.Conv2D(nfilters[4], kernel_size=(sfilters[4], sfilters[4]), padding='same'),
             layers.BatchNormalization(),
-            layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+            layers.Activation('relu'),
+            layers.MaxPooling2D(pool_size=(2, 2)),
 
             layers.Flatten(),
-            layers.Dense(4096, activation='relu'),
-            layers.Dense(4096, activation='relu'),
+            layers.Dense(3072),
             layers.BatchNormalization(),
-            layers.Dense(1024, activation='relu'),
-            layers.Dropout(0.3),
-            layers.Dense(8, activation='softmax')
+            layers.Activation('relu'),
+            layers.Dropout(0.5),
+
+            layers.Dense(4096),
+            layers.BatchNormalization(),
+            layers.Activation('relu'),
+            layers.Dropout(0.5),
+
+            layers.Dense(8),
+            layers.BatchNormalization(),
+            layers.Activation('softmax'),
         ])
 
     def compile(self, lr=1e-4, metrics=None):
@@ -66,7 +73,7 @@ class CNN:
             EarlyStopping(monitor="val_accuracy", patience=5, verbose=1)
         ]
         if save:
-            callbacks.append(ModelCheckpoint(filepath='D:\\model_gen.h5', monitor="val_accuracy", verbose=1, save_best_only=True))
+            callbacks.append(ModelCheckpoint(filepath='D:\\model_alex.h5', monitor="val_accuracy", verbose=1, save_best_only=True))
 
         # Train Model
         history = self.model.fit(
