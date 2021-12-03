@@ -1,6 +1,6 @@
 import tensorflow as tf
 from my_dataset import MyTfDataset
-from ResNet import ResNet
+from res_net import ResNet
 
 
 tf.random.set_seed(12345)
