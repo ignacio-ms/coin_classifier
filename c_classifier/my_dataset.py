@@ -5,7 +5,7 @@ import keras.preprocessing.image
 import numpy as np
 import tensorflow as tf
 
-from helpers import timed
+from utils import timed
 
 
 # Numpy dataset (Used for preprocessing)
@@ -72,14 +72,14 @@ class MyTfDataset:
 
     def __init__(self):
         self.IMG_LABELS = ['1c', '1e', '2c', '2e', '5c', '10c', '20c', '50c']
-        self.LABEL_DICT = {'1c': 0, '1e': 1, '2c': 2, '2e': 3, '5c': 4, '10c': 5, '20c': 6, '50c': 7}
+        self.LABEL_DICT = {'10c': 0, '1c': 1, '1e': 2, '20c': 3, '2c': 4, '2e': 5, '50c': 6, '5c': 7}
 
         self.data = []
         self.labels = []
         self.labels_oh = []
 
     @timed
-    def read_data(self, datset_path, augmentation=False):
+    def read_data(self, datset_path, augmentation=False, aug_ammount=None):
         # Reading image paths and creating labels
         img_paths, labels = list(), list()
 
@@ -91,19 +91,20 @@ class MyTfDataset:
                     img_paths.append(os.path.join(f_dir, img))
                     labels.append(file)
 
-        labels = [self.LABEL_DICT[v] for v in labels]
+        labels = [self.LABEL_DICT.get(v) for v in labels]
 
         # Reading images from disk
         ds = tf.data.Dataset.from_tensor_slices((img_paths, labels))
         ds = ds.map(self.map_img)
 
+        if aug_ammount is None:
+            aug_ammount = [2, 4, 3, 3, 12, 4, 5, 2]
         aug = keras.preprocessing.image.ImageDataGenerator(
             rotation_range=180,
-            width_shift_range=0.2,
-            height_shift_range=0.2,
-            shear_range=0.2,
-            zoom_range=0.2,
-            fill_mode='nearest'
+            horizontal_flip=True,
+            vertical_flip=True,
+            zoom_range=0.1,
+            shear_range=0.1,
         )
 
         # Saving data
@@ -115,8 +116,8 @@ class MyTfDataset:
 
             if augmentation:
                 aug_iter = aug.flow(X)
-                r = 10 if labels[index] == 2 else (4 if labels[index] == 0 else 2)
-                for i in range(r):
+                r = aug_ammount[labels[index]]
+                for _ in range(r):
                     img = next(aug_iter)[0].astype(np.float32)
                     self.data.append(img)
                     self.labels_oh.append(y)
