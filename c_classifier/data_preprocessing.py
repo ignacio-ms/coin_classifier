@@ -8,7 +8,15 @@ from numba import jit
 
 # ----- Noise reduction ----- #
 @timed
-def noise_reduction(data, Smax=3, threshold=55, adapt=False):
+def noise_reduction(data: np.ndarray, Smax=3, threshold=55, adapt=False) -> np.ndarray:
+    """
+    This function applies a median filter to an image or set of images
+    :param data: Image or set of images
+    :param Smax: Maximun kernel size
+    :param threshold: Top and Bottom limit to count as intrusive noise
+    :param adapt: Boolean indicating to make an mean filter or an adaptative mean filter
+    :return: Image or set of images processed
+    """
     if len(data.shape) == 3:
         return adaptative_median_filter(data, Smax, threshold) if adapt else median_filter(data, Smax)
 
@@ -18,7 +26,14 @@ def noise_reduction(data, Smax=3, threshold=55, adapt=False):
 
 
 @jit(forceobj=True)
-def adaptative_median_filter(img, Smax, t):
+def adaptative_median_filter(img: np.ndarray, Smax: int, t: int) -> np.ndarray:
+    """
+    This functions computes an Adaptative Median Filter over image.
+    :param img: Image to preocess
+    :param Smax: Maximun kernel size
+    :param t: Threshold
+    :return: Filtered image
+    """
     ap_max = Smax // 2
     a_imagen = cv2.copyMakeBorder(img, ap_max, ap_max, ap_max, ap_max, cv2.BORDER_REPLICATE)
     f_img = img.copy()
@@ -38,7 +53,13 @@ def adaptative_median_filter(img, Smax, t):
 
 
 @jit(forceobj=True)
-def median_filter(img, S):
+def median_filter(img: np.ndarray, S: int) -> np.ndarray:
+    """
+    This functions computes a Median Filter over image.
+    :param img: Image to process
+    :param S: Kernel size
+    :return: Filtered image
+    """
     AP = S // 2
     a_imagen = cv2.copyMakeBorder(img, AP, AP, AP, AP, cv2.BORDER_REPLICATE)
     f_img = img.copy()
@@ -52,7 +73,13 @@ def median_filter(img, S):
 
 
 @jit
-def check_max_min(arr, t):
+def check_max_min(arr: np.ndarray, t: int) -> bool:
+    """
+    This function returns if a given set of pixels (RGB) is considered as instrusive noise, dependig on the given threshold
+    :param arr: Set of pixels
+    :param t: Threshold
+    :return: Boolean
+    """
     if (0 <= arr[0] <= t and 0 <= arr[1] <= t and 0 <= arr[2] <= t) \
             or ((255 - t) <= arr[0] <= 255 and (255 - t) <= arr[1] <= 255 and (255 - t) <= arr[2] <= 255):
         return True
@@ -61,7 +88,13 @@ def check_max_min(arr, t):
 
 # ------ Brightness correction ----- #
 @timed
-def brightness_correction(data, method='hsv'):
+def brightness_correction(data: np.ndarray, method='hsv') -> np.ndarray:
+    """
+    This function lightly corrects the brightness of an image or set of images
+    :param data: Image or set of images
+    :param method: String corresponding to the method to apply
+    :return: Image or set of images corrected
+    """
     if len(data.shape) == 3:
         return adjust_gamma(data, method)
 
@@ -71,7 +104,18 @@ def brightness_correction(data, method='hsv'):
     return data
 
 
-def adjust_gamma(image, method='hsv', gamma=1.0):
+def adjust_gamma(image: np.ndarray, method='hsv', gamma=1.0) -> np.ndarray:
+    """
+    This function apply a lightly brigthness correction to an image.
+    Methods: By gamma correction
+        1. By HSV previos parsing
+        2. By gray scale
+        3. Custom
+    :param image: Image to correct
+    :param method: Method to use
+    :param gamma: Gamma parameter
+    :return: Corrected image
+    """
     if method not in ['hsv', 'gray', 'table']:
         raise ValueError(f'{method} method not recognized')
 
@@ -98,7 +142,3 @@ def adjust_gamma(image, method='hsv', gamma=1.0):
     inv_gamma = 1.0 / gamma
     table = np.array([((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
     return cv2.LUT(image, table)
-
-
-def brightness(img):
-    return np.average(np.linalg.norm(img, axis=2)) / np.sqrt(3)

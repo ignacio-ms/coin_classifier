@@ -19,7 +19,12 @@ class MyNpDataset:
         self.data_paths = []
 
     @timed
-    def read_data(self, datset_path):
+    def read_data(self, datset_path: str):
+        """
+        This function read a set of images as Numpy Arrays from a given path.
+        Each folder in the path corresponds to the image class.
+        :param datset_path: Image Paths
+        """
         # Reading image paths and creating labels
         img_paths, labels = list(), list()
 
@@ -38,7 +43,12 @@ class MyNpDataset:
         self.labels = np.array(labels)
 
     @staticmethod
-    def read_img(img_path):
+    def read_img(img_path: str) -> np.ndarray:
+        """
+        This function read an image of a given path as a Numpy Array
+        :param img_path: Path
+        :return: Image
+        """
         img = cv2.imread(img_path, cv2.IMREAD_COLOR)
         img = img.astype(np.uint8)
         img = np.array(img)
@@ -46,10 +56,17 @@ class MyNpDataset:
 
     @timed
     def save_data(self):
+        """
+        This function updates each image in its path
+        """
         for i in range(len(self.data)):
             cv2.imwrite(self.data_paths[i], self.data[i])
 
-    def print_img_by_index(self, index):
+    def print_img_by_index(self, index: int):
+        """
+        This function prints an image of the dataset using opencv
+        :param index: Index of the image in the dataset
+        """
         if len(self.data) == 0:
             raise ValueError("Can't print empty dataset\n")
 
@@ -79,7 +96,13 @@ class MyTfDataset:
         self.labels_oh = []
 
     @timed
-    def read_data(self, datset_path, augmentation=False, aug_ammount=None):
+    def read_data(self, datset_path: str, augmentation=False):
+        """
+        This function read a set of images as Tensorflow Tensors from a given path.
+        Each folder in the path corresponds to the image class.
+        :param datset_path: Image Paths
+        :param augmentation: Boolean indicating to perform a data augmentation of the datset
+        """
         # Reading image paths and creating labels
         img_paths, labels = list(), list()
 
@@ -97,8 +120,7 @@ class MyTfDataset:
         ds = tf.data.Dataset.from_tensor_slices((img_paths, labels))
         ds = ds.map(self.map_img)
 
-        if aug_ammount is None:
-            aug_ammount = [2, 4, 3, 3, 12, 4, 5, 2]
+        aug_ammount = [2, 4, 3, 3, 12, 4, 5, 2]
         aug = keras.preprocessing.image.ImageDataGenerator(
             rotation_range=180,
             horizontal_flip=True,
@@ -134,7 +156,12 @@ class MyTfDataset:
         self.labels = tf.gather(self.labels, s_index)
 
     @staticmethod
-    def read_img(img_path):
+    def read_img(img_path: tf.Variable) -> np.ndarray:
+        """
+        This function read an image of a given path as a Numpy Array
+        :param img_path: Path
+        :return: Image
+        """
         img_path = img_path.decode('utf-8')
         img = cv2.imread(img_path, cv2.IMREAD_COLOR)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -142,12 +169,22 @@ class MyTfDataset:
         img = img.astype(np.float32)
         return img
 
-    def map_img(self, img_path, label):
+    def map_img(self, img_path: tf.Variable, label: tf.Variable) -> (tf.Tensor, tf.Tensor):
+        """
+        This function read an image of a given path as a Tensor and encodes its label using OneHotEncoding
+        :param img_path: Path
+        :param label: Label
+        :return:
+        """
         img = tf.numpy_function(self.read_img, [img_path], [tf.float32])
         label = tf.one_hot(label, 8, dtype=tf.int32)
         return img, label
 
     def print_img_by_index(self, index):
+        """
+        This function prints an image of the dataset using opencv
+        :param index: Index of the image in the dataset
+        """
         if len(self.data) == 0:
             raise ValueError("Can't print empty dataset\n")
 
@@ -159,7 +196,12 @@ class MyTfDataset:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    def validation_split(self, keep_size=0.8):
+    def validation_split(self, keep_size=0.8):  # -> MyTfDataset
+        """
+        This function splits the dataset into train and validation subsets.
+        :param keep_size: Data percentage to keep in train subset
+        :return: Validation subset
+        """
         if len(self.data) == 0:
             raise ValueError("Can't split empty dataset\n")
 
